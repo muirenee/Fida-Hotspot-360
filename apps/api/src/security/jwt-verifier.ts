@@ -8,7 +8,14 @@ export async function verifyBearer(authorization: string | undefined): Promise<s
   if (!issuer || !audience || !authorization?.startsWith('Bearer ')) throw new UnauthorizedException();
   try {
     const jwt = authorization.slice(7);
-    if (!jwks) jwks = createRemoteJWKSet(new URL('.well-known/jwks.json', issuer.endsWith('/') ? issuer : issuer + '/'));
+    if (!jwks) {
+      const discoveryUrl = new URL('.well-known/openid-configuration', issuer.endsWith('/') ? issuer : issuer + '/');
+      const discovery = await fetch(discoveryUrl, { signal: AbortSignal.timeout(5000) });
+      if (!discovery.ok) throw new Error('OIDC discovery failed');
+      const metadata = await discovery.json() as { issuer?: string; jwks_uri?: string };
+      if (metadata.issuer !== issuer || !metadata.jwks_uri || !metadata.jwks_uri.startsWith('https://')) throw new Error('Invalid OIDC discovery');
+      jwks = createRemoteJWKSet(new URL(metadata.jwks_uri));
+    }
     const { payload } = await jwtVerify(jwt, jwks, { issuer, audience, algorithms: ['RS256'] });
     if (typeof payload.sub !== 'string' || !payload.sub) throw new Error('Missing subject');
     return payload.sub;
