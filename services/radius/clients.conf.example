@@ -1,0 +1,8 @@
+# Example ONLY; use the same values in the supported OPNsense RADIUS configuration.
+# Do NOT commit actual secrets. Prefer restricting source by IP/VPN and rotating credentials.
+client hotel_opnsense {
+    ipaddr = 10.10.110.1
+    secret = REPLACE_WITH_UNIQUE_SECRET_STORED_OUTSIDE_GIT
+    shortname = hotel_opnsense
+    nastype = other
+}
