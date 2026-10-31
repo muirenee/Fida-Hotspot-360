@@ -1,0 +1,18 @@
+{
+  "name": "fida-hotspot-360",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "db:generate": "pnpm --filter @fida/database db:generate",
+    "db:push": "pnpm --filter @fida/database db:push",
+    "db:migrate": "pnpm --filter @fida/database db:migrate"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.9.0"
+  }
+}
