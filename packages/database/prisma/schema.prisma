@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id         String     @id @default(uuid()) @db.Uuid
+  name       String
+  status     String     @default("active")
+  createdAt  DateTime   @default(now())
+  properties Property[]
+}
+
+model Property {
+  id        String       @id @default(uuid()) @db.Uuid
+  tenantId  String       @db.Uuid
+  tenant    Tenant       @relation(fields: [tenantId], references: [id])
+  name      String
+  timezone  String       @default("Africa/Kigali")
+  createdAt DateTime     @default(now())
+  gateways  Gateway[]
+  plans     AccessPlan[]
+  @@unique([id, tenantId])
+  @@index([tenantId])
+}
+
+model Gateway {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @db.Uuid
+  propertyId String   @db.Uuid
+  property   Property @relation(fields: [propertyId, tenantId], references: [id, tenantId])
+  name       String
+  adapter    String
+  status     String   @default("pending")
+  lastSeenAt DateTime?
+  @@unique([id, tenantId])
+  @@index([tenantId, propertyId])
+}
+
+model AccessPlan {
+  id              String   @id @default(uuid()) @db.Uuid
+  tenantId        String   @db.Uuid
+  propertyId      String   @db.Uuid
+  property        Property @relation(fields: [propertyId, tenantId], references: [id, tenantId])
+  name            String
+  downloadKbps    Int
+  uploadKbps      Int
+  durationSeconds Int
+  quotaBytes      BigInt?
+  maxDevices      Int      @default(1)
+  @@unique([id, tenantId])
+  @@index([tenantId, propertyId])
+}
