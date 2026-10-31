@@ -42,6 +42,7 @@ model Property {
   createdAt DateTime     @default(now())
   gateways  Gateway[]
   plans     AccessPlan[]
+  vouchers  Voucher[]
   @@unique([id, tenantId])
   @@index([tenantId])
 }
@@ -70,6 +71,22 @@ model AccessPlan {
   durationSeconds Int
   quotaBytes      BigInt?
   maxDevices      Int      @default(1)
+  vouchers        Voucher[]
   @@unique([id, tenantId])
   @@index([tenantId, propertyId])
+}
+
+model Voucher {
+  id           String     @id @default(uuid()) @db.Uuid
+  tenantId     String     @db.Uuid
+  propertyId   String     @db.Uuid
+  property     Property   @relation(fields: [propertyId, tenantId], references: [id, tenantId])
+  accessPlanId String     @db.Uuid
+  accessPlan   AccessPlan @relation(fields: [accessPlanId, tenantId], references: [id, tenantId])
+  codeHash     String     @unique
+  status       String     @default("unused")
+  expiresAt    DateTime?
+  redeemedAt   DateTime?
+  createdAt    DateTime   @default(now())
+  @@index([tenantId, propertyId, status])
 }
