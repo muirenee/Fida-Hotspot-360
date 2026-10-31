@@ -1,16 +1,17 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { Module, Controller, Get } from '@nestjs/common';
+import { HotelsModule } from './hotels/hotels.module';
 
 @Controller()
 class HealthController {
   @Get('health')
   health() {
-    return { status: 'ok', service: 'fida-cloud-api', version: '0.1.0' };
+    return { status: 'ok', service: 'fida-cloud-api', version: '0.2.0' };
   }
 }
 
-@Module({ controllers: [HealthController] })
+@Module({ imports: [HotelsModule], controllers: [HealthController] })
 class AppModule {}
 
 async function bootstrap() {
